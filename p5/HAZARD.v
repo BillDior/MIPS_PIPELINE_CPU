@@ -48,15 +48,52 @@ input [1:0]RegDstD,
 //stall out
 output stall,
 //forward out
-output [1:0]ForwardrsD,
-output [1:0]ForwardrtD,
-output [1:0]ForwardrsE,
-output [1:0]ForwardrtE,
-output ForwardrtM
+output reg[1:0] ForwardrsD,
+output reg[1:0] ForwardrtD,
+output reg[1:0] ForwardrsE,
+output reg[1:0] ForwardrtE,
+output reg ForwardrtM
 );
 
 
 // check hazard 
+initial begin 
+	Forwardrs = 0;
+	ForwardrtD  = 0;
+	ForwardrsE  = 0;
+	ForwardrtE  = 0;
+	ForwardrtM = 0;
+end
+always @(*) begin
+	if (E_RegWToWrite != 0 && E_RegWriteSign && E_RegWToWrite == D_RegisterRs)  D_Rs_Forward = 3;
+	else if (M_RegWToWrite != 0 && M_RegWriteSign && M_RegWToWrite == D_RegisterRs)  D_Rs_Forward = 2;
+	else if (W_RegWToWrite != 0 && W_RegWriteSign && W_RegWToWrite == D_RegisterRs)  D_Rs_Forward = 1;
+	else  D_Rs_Forward = 0;
 
-assign D_Rs_Forward = E
+
+	if (E_RegWToWrite != 0 && E_RegWriteSign && E_RegWToWrite == D_RegisterRt)  D_Rt_Forward = 3;
+	else if (M_RegWToWrite != 0 && M_RegWriteSign && M_RegWToWrite == D_RegisterRt)  D_Rt_Forward = 2;
+	else if (W_RegWToWrite != 0 && W_RegWriteSign && W_RegWToWrite == D_RegisterRt)  D_Rt_Forward = 1;
+	else  D_Rt_Forward = 0;
+
+	if (M_RegWToWrite != 0 && M_RegWriteSign && M_RegWToWrite == E_RegisterRs)  E_Rs_Forward = 2;
+	else if (W_RegWToWrite != 0 && W_RegWriteSign && W_RegWToWrite == E_RegisterRs)  E_Rs_Forward = 1;
+	else  E_Rs_Forward = 0;
+
+
+	if (M_RegWToWrite != 0 && M_RegWriteSign && M_RegWToWrite == E_RegisterRt)  E_Rt_Forward = 2;
+	else if (W_RegWToWrite != 0 && W_RegWriteSign && W_RegWToWrite == E_RegisterRt)  E_Rt_Forward = 1;
+	else  E_Rt_Forward = 0;
+
+
+	 M_rt_Forward = (W_RegWToWrite != 0 && W_RegWriteSign && W_RegWToWrite == M_RegisterRt);
+
+end
+
+
+
+// check stall 
+assign load_stall = 
+
+
 endmodule
