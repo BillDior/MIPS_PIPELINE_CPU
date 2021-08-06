@@ -30,8 +30,7 @@
 `define jr_func 6'b001000
 `define jalr_func 6'b001001
 module Controller_realize(
-    input [5:0] op,
-    input [5:0] func, 
+    input [31:0] instr,
     output [2:0] ALUopInput,
     output [1:0] RegDst,
     output  ALUSrc,
@@ -40,11 +39,32 @@ module Controller_realize(
     output  MemWrite,
     output  [1:0] MemToReg,
     output  [1:0] ExtSel,
+    output  rs,
+    output  rt,
     output  BranchImm26,
     output  BranchReg,
-    output  BranchExt32
+    output  BranchExt32,
+    output  Jump,
+    output  Branch,
+    output  BorJ,
+    output  RegToWrite
     // output  MoveHigh (new Extsel = old ExtSel + MoveHigh)
     );
+
+    wire [5:0] op;
+    wire [5:0] func;
+    wire [4:0] rs;
+    wire [4:0] rt;
+    INSTR_SPLITTER _D_spiltter (
+        .Instr(D_instr),
+        .op(op),
+        .rs(rs),
+        .rt(rt),
+        .func(func),
+        .imm16(imm16),
+        .imm26(imm26)
+    )
+
     wire R ;
     wire lw ;
     wire sw ;
@@ -103,4 +123,16 @@ module Controller_realize(
     assign BranchReg = jr;
     assign BranchExt32 = beq;
 
+    assign Jump = (j || jal || jr);
+    assign Branch = beq;
+    assign BorJ = Jump || Branch;
+
+    MUX_4 _mux_reg2Write(
+        .data0(rt),
+        .data1(rd),
+        .data2(5'b11111), // for jal
+        .data3(5'b0),
+        .selector(RegDst), 
+        .out(RegToWrite) 
+    );
 endmodule

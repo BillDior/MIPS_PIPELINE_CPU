@@ -19,7 +19,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 module MUX_NPC( // 
-    input [31:0] PC,
+    input [31:0] D_PC,
     input [25:0] imm26,
     input [31:0] Reg32,
     input [31:0] Ext32,
@@ -27,15 +27,13 @@ module MUX_NPC( //
     input BranchImm26, 
     input BranchReg,
     input EuqalSign,
-    output [31:0] next_pc,
-    output [31:0] pc_add_4
+    output [31:0] next_pc
     );
 
-    assign pc_add_4  = PC + 4;
-    assign next_pc = BranchExt32 && EuqalSign ? pc_add_4 + (Ext32 << 2):
-                     BranchImm26 ? {PC[31:28], imm26, 2'b00}:
+    assign next_pc = BranchExt32 && EuqalSign ? D_PC + 4 + (Ext32 << 2):
+                     BranchImm26 ? {D_PC[31:28], imm26, 2'b00}:
                      BranchReg ? Reg32 :
-                     pc_add_4 ;
+                     0 ;
 
 
 endmodule
